@@ -64,9 +64,14 @@
         const START_DATE = new Date(2026, 9, 13); // 13.10.2026
         const END_DATE = new Date(2026, 11, 23);  // 23.12.2026
 
-        function pluralize(number, titles) {
-            const cases =;
-            return titles[(number % 100 > 4 && number % 100 < 20) ? 2 : cases[(number % 10 < 5) ? number % 10 : 5]];
+        // Простая и надежная функция для правильного склонения дней
+        function getDaysWord(number) {
+            const absNum = Math.abs(number) % 100;
+            const lastDigit = absNum % 10;
+            if (absNum > 10 && absNum < 20) return "дней";
+            if (lastDigit > 1 && lastDigit < 5) return "дня";
+            if (lastDigit === 1) return "день";
+            return "дней";
         }
 
         function calculateDates() {
@@ -77,7 +82,7 @@
             const diffLivedTime = today - START_DATE;
             const livedDays = Math.floor(diffLivedTime / (1000 * 60 * 60 * 24));
             if (livedDays >= 0) {
-                document.getElementById('daysLived').innerText = livedDays + ' ' + pluralize(livedDays, ['день', 'дня', 'дней']);
+                document.getElementById('daysLived').innerText = livedDays + ' ' + getDaysWord(livedDays);
             } else {
                 document.getElementById('daysLived').innerText = 'Еще не заселился';
             }
@@ -86,7 +91,7 @@
             const diffLeftTime = END_DATE - today;
             const leftDays = Math.ceil(diffLeftTime / (1000 * 60 * 60 * 24));
             if (leftDays >= 0) {
-                document.getElementById('daysLeft').innerText = leftDays + ' ' + pluralize(leftDays, ['день', 'дня', 'дней']);
+                document.getElementById('daysLeft').innerText = leftDays + ' ' + getDaysWord(leftDays);
             } else {
                 document.getElementById('daysLeft').innerText = 'Свобода!';
             }
@@ -95,7 +100,7 @@
         let soberCount = localStorage.getItem('soberCount') ? parseInt(localStorage.getItem('soberCount')) : 2;
 
         function updateSoberUI() {
-            document.getElementById('soberValue').innerText = soberCount + ' ' + pluralize(soberCount, ['день', 'дня', 'дней']);
+            document.getElementById('soberValue').innerText = soberCount + ' ' + getDaysWord(soberCount);
             localStorage.setItem('soberCount', soberCount);
         }
 
