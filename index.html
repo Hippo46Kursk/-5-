@@ -45,11 +45,11 @@
         <h1>Мой трекер</h1>
         <div class="card dorm-lived">
             <div class="card-title">Прожито в общаге</div>
-            <div class="card-value" id="daysLived">0 дней</div>
+            <div class="card-value" id="daysLived">Загрузка...</div>
         </div>
         <div class="card dorm-left">
             <div class="card-title">Осталось до выезда</div>
-            <div class="card-value" id="daysLeft">0 дней</div>
+            <div class="card-value" id="daysLeft">Загрузка...</div>
         </div>
         <div class="card sober">
             <div class="card-title">Дней без бухла</div>
@@ -61,29 +61,57 @@
         </div>
     </div>
     <script>
-        const START_DATE = new Date(2026, 9, 13); 
-        const END_DATE = new Date(2026, 11, 23);  
+        const START_DATE = new Date(2026, 9, 13); // 13.10.2026
+        const END_DATE = new Date(2026, 11, 23);  // 23.12.2026
+
         function pluralize(number, titles) {
             const cases =;
             return titles[(number % 100 > 4 && number % 100 < 20) ? 2 : cases[(number % 10 < 5) ? number % 10 : 5]];
         }
+
         function calculateDates() {
             const today = new Date();
             today.setHours(0,0,0,0);
+
+            // Сколько прожито
             const diffLivedTime = today - START_DATE;
             const livedDays = Math.floor(diffLivedTime / (1000 * 60 * 60 * 24));
-            document.getElementById('daysLived').innerText = livedDays > 0 ? livedDays + ' ' + pluralize(livedDays, ['день', 'дня', 'дней']) : 'Еще не заселился';
+            if (livedDays >= 0) {
+                document.getElementById('daysLived').innerText = livedDays + ' ' + pluralize(livedDays, ['день', 'дня', 'дней']);
+            } else {
+                document.getElementById('daysLived').innerText = 'Еще не заселился';
+            }
+
+            // Сколько осталось
             const diffLeftTime = END_DATE - today;
             const leftDays = Math.ceil(diffLeftTime / (1000 * 60 * 60 * 24));
-            document.getElementById('daysLeft').innerText = leftDays > 0 ? leftDays + ' ' + pluralize(leftDays, ['день', 'дня', 'дней']) : 'Свобода!';
+            if (leftDays >= 0) {
+                document.getElementById('daysLeft').innerText = leftDays + ' ' + pluralize(leftDays, ['день', 'дня', 'дней']);
+            } else {
+                document.getElementById('daysLeft').innerText = 'Свобода!';
+            }
         }
+
         let soberCount = localStorage.getItem('soberCount') ? parseInt(localStorage.getItem('soberCount')) : 2;
+
         function updateSoberUI() {
             document.getElementById('soberValue').innerText = soberCount + ' ' + pluralize(soberCount, ['день', 'дня', 'дней']);
             localStorage.setItem('soberCount', soberCount);
         }
-        function changeSober(val) { soberCount += val; if (soberCount < 0) soberCount = 0; updateSoberUI(); }
-        function resetSober() { if (confirm('Сбросить счетчик трезвости?')) { soberCount = 0; updateSoberUI(); } }
+
+        function changeSober(val) { 
+            soberCount += val; 
+            if (soberCount < 0) soberCount = 0; 
+            updateSoberUI(); 
+        }
+        
+        function resetSober() { 
+            if (confirm('Сбросить счетчик трезвости?')) { 
+                soberCount = 0; 
+                updateSoberUI(); 
+            } 
+        }
+
         calculateDates();
         updateSoberUI();
     </script>
