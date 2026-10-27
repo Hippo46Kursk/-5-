@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой Счетчик</title>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --card-bg: #1a1a1e;
+            --accent-green: #4ade80;
+            --accent-blue: #60a5fa;
+            --accent-purple: #a78bfa;
+            --text-main: #f4f4f5;
+            --text-muted: #a1a1aa;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 16px; margin-top: 20px; }
+        h1 { font-size: 24px; text-align: center; margin-bottom: 10px; font-weight: 700; }
+        .card { background-color: var(--card-bg); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 6px; border: 1px solid #27272a; }
+        .card-title { font-size: 14px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .card-value { font-size: 32px; font-weight: 800; }
+        .dorm-lived .card-value { color: var(--accent-blue); }
+        .dorm-left .card-value { color: var(--accent-purple); }
+        .sober .card-value { color: var(--accent-green); }
+        .sober-controls { display: flex; gap: 10px; margin-top: 10px; }
+        button { flex: 1; background-color: #27272a; color: var(--text-main); border: none; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        button:active { background-color: #3f3f46; }
+        button.reset-btn { background-color: #3f1a1a; color: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Мой трекер</h1>
+        <div class="card dorm-lived">
+            <div class="card-title">Прожито в общаге</div>
+            <div class="card-value" id="daysLived">0 дней</div>
+        </div>
+        <div class="card dorm-left">
+            <div class="card-title">Осталось до выезда</div>
+            <div class="card-value" id="daysLeft">0 дней</div>
+        </div>
+        <div class="card sober">
+            <div class="card-title">Дней без бухла</div>
+            <div class="card-value" id="soberValue">2 дня</div>
+            <div class="sober-controls">
+                <button onclick="changeSober(1)">+1 день</button>
+                <button class="reset-btn" onclick="resetSober()">Сброс</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const START_DATE = new Date(2026, 9, 13); 
+        const END_DATE = new Date(2026, 11, 23);  
+        function pluralize(number, titles) {
+            const cases =;
+            return titles[(number % 100 > 4 && number % 100 < 20) ? 2 : cases[(number % 10 < 5) ? number % 10 : 5]];
+        }
+        function calculateDates() {
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const diffLivedTime = today - START_DATE;
+            const livedDays = Math.floor(diffLivedTime / (1000 * 60 * 60 * 24));
+            document.getElementById('daysLived').innerText = livedDays > 0 ? livedDays + ' ' + pluralize(livedDays, ['день', 'дня', 'дней']) : 'Еще не заселился';
+            const diffLeftTime = END_DATE - today;
+            const leftDays = Math.ceil(diffLeftTime / (1000 * 60 * 60 * 24));
+            document.getElementById('daysLeft').innerText = leftDays > 0 ? leftDays + ' ' + pluralize(leftDays, ['день', 'дня', 'дней']) : 'Свобода!';
+        }
+        let soberCount = localStorage.getItem('soberCount') ? parseInt(localStorage.getItem('soberCount')) : 2;
+        function updateSoberUI() {
+            document.getElementById('soberValue').innerText = soberCount + ' ' + pluralize(soberCount, ['день', 'дня', 'дней']);
+            localStorage.setItem('soberCount', soberCount);
+        }
+        function changeSober(val) { soberCount += val; if (soberCount < 0) soberCount = 0; updateSoberUI(); }
+        function resetSober() { if (confirm('Сбросить счетчик трезвости?')) { soberCount = 0; updateSoberUI(); } }
+        calculateDates();
+        updateSoberUI();
+    </script>
+</body>
+</html>
